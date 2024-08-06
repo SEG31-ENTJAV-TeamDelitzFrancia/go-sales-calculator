@@ -1,0 +1,45 @@
+.container,
+.employee-payroll-details {
+  display: flex;
+}
+.flex-center {
+  justify-content: center;
+}
+.emerg-form {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  width: auto;
+}
+.form-control {
+  width: auto;
+}
+.form-input {
+  width: 97%;
+  margin: 0 auto;
+}
+.form-btn {
+  width: auto;
+}
+.buttons-tray {
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-evenly;
+}
+.button-text {
+  text-decoration: none;
+  color: inherit;
+}
+.money {
+  text-align: right;
+}
+.box-error {
+  border: #ff8d8d solid 10px;
+  padding: 10px 2.618rem;
+}
+.text-error-primary {
+  color: #ff4e4e;
+}
+.text-error-secondary {
+  color: rgb(100, 0, 0);
+}

@@ -1,0 +1,54 @@
+    <fieldset id="payrollOutput">
+        <legend>{{ .EmployeeName }}'s Details</legend>
+        <hr />
+        <div>
+            <div class="employee-identification">
+                <h2><strong>ID</strong>: {{ .EmployeeID }}</h2>
+                <h2><strong>Name</strong>: {{ .EmployeeName }}</h2>
+            </div>
+            <hr />
+            <div class="employee-payroll-details">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Employee Payroll Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ .EmployeeName }}'s Sales</td>
+                            <td class="money">
+                                PHP {{ .SalesAmount | moneyFormat }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sales Code</td>
+                            <td>{{ .SalesCode | capitalise }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-spacer" colspan="2"><hr /></td>
+                        </tr>
+                        <tr>
+                            <td>Gross Earned Amount</td>
+                            <td class="money">
+                            PHP {{ .GrossEarnedAmount | moneyFormat }}</td>
+                        </tr>
+                        <tr>
+                            <td>Sales Commission</td>
+                            <td class="money">PHP {{ .SalesCommission | moneyFormat }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-spacer" colspan="2"><hr /></td>
+                        </tr>
+                        <tr>
+                            <td>Take Home Pay</td>
+                            <td class="money">PHP {{ .TakeHomePay | moneyFormat }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="buttons-tray">
+                <button class="form-btn" hx-get="/" hx-target="#mainArea">Go Back</button>
+            </div>
+        </div>
+    </fieldset>

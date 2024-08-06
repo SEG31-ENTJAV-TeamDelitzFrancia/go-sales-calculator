@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Go Employee Sales Calculator</title>
+
+        <!-- Styles -->
+        <link rel="stylesheet" href="/assets/style.css">
+
+        <!-- Production -->
+        <!-- <script
+            src="https://unpkg.com/htmx.org@2.0.1"
+            integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
+            crossorigin="anonymous"
+        ></script> -->
+
+        <!-- Development -->
+        <script
+            src="https://unpkg.com/htmx.org@2.0.1/dist/htmx.js"
+            integrity="sha384-gpIh5aLQ0qmX8kZdyhsd6jA24uKLkqIr1WAGtantR4KsS97l/NRBvh8/8OYGThAf"
+            crossorigin="anonymous"
+        ></script>
+    </head>
+    <body>
+        <main class="container flex-center" id="mainArea">
+            <fieldset id="inputForm">
+                <legend>Calculate Employee's Sales</legend>
+                <form
+                    method="post"
+                    hx-post="/controllers/calculate"
+                    hx-target="#mainArea"
+                    class="emerg-form"
+                >
+                    <div class="form-control">
+                        <label for="employeeID"
+                            ><p>Enter Employee ID:</p></label
+                        >
+                        <input
+                            type="text"
+                            name="employeeID"
+                            class="form-input"
+                            required
+                            aria-required
+                        />
+                    </div>
+                    <div class="form-control">
+                        <label for="employeeName"
+                            ><p>Enter Employee Name:</p></label
+                        >
+                        <input
+                            type="text"
+                            name="employeeName"
+                            class="form-input"
+                            required
+                            aria-required
+                        />
+                    </div>
+                    <div class="form-control">
+                        <label for="salesCode"><p>Enter Sales Code:</p></label>
+                        <select name="salesCode" required aria-required>
+                            <option value="a">A</option>
+                            <option value="b">B</option>
+                            <option value="c">C</option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label for="salesAmount"
+                            ><p>Enter Sales Amount:</p>
+                        </label>
+                        <input
+                            type="number"
+                            name="salesAmount"
+                            class="form-input"
+                            min="1"
+                            step="any"
+                            required
+                            aria-required
+                        />
+                    </div>
+                    <div class="buttons-tray">
+                        <input class="form-btn" type="submit" value="Submit" />
+                        <input
+                            class="form-btn"
+                            type="reset"
+                        />
+                    </div>
+                </form>
+            </fieldset>
+        </main>
+    </body>
+</html>
