@@ -1,8 +1,16 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"log"
+	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 var (
@@ -22,20 +30,74 @@ var (
 )
 
 func main() {
-	srv := http.NewServeMux()
+	if err := run(); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func run() (err error) {
+	// handle SIGINT (Ctrl+C)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	// setup opentelemetry
+	otelShut, err := setupOTelSDK(ctx)
+	if err != nil {
+		return
+	}
+
+	// handle otelShut properly
+	defer func() {
+		err = errors.Join(err, otelShut(context.Background()))
+	}()
+
+	// setup server
+	srv := &http.Server{
+		Addr:         ":7727",
+		BaseContext:  func(_ net.Listener) context.Context { return ctx },
+		ReadTimeout:  time.Second,
+		WriteTimeout: 10 * time.Second,
+		Handler:      newHttpHandler(),
+	}
+	srvErr := make(chan error, 1)
+	go func() {
+		srvErr <- srv.ListenAndServe()
+	}()
+
+	// wait for interruption
+	select {
+	case err = <-srvErr:
+		// error when starting HTTP Server
+		return
+	case <-ctx.Done():
+		// wait for first Ctrl+C
+		// stop receiving signal notifications as soon as possible
+		stop()
+	}
+
+	// when shut is called, ListenAndServe immediately returned EndServerClosed
+	err = srv.Shutdown(context.Background())
+	return
+}
+
+func newHttpHandler() http.Handler {
+	mux := http.NewServeMux()
+
+	// replace mux.HandleFunc to otelHandleFunc
+	otelHandleFunc := func(pattern string, handlerFunc func(http.ResponseWriter, *http.Request)) {
+		handler := otelhttp.WithRouteTag(pattern, http.HandlerFunc(handlerFunc))
+		mux.Handle(pattern, handler)
+	}
 
 	// assets content (e.g. assets)
-	srv.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(assetsFilepath))))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(assetsFilepath))))
 
 	// views endpoints
-	srv.HandleFunc("/", RootHandler)
+	otelHandleFunc("/", RootHandler)
 
 	// component functions as "controllers" endpoints
-	srv.HandleFunc("POST /controllers/calculate", CalculatePartialHandler)
+	otelHandleFunc("POST /controllers/calculate", CalculatePartialHandler)
 
-	// serve
-	log.Println("Web App now running at http://localhost:7727")
-	if err := http.ListenAndServe(":7727", srv); err != nil {
-		log.Fatalln("Something went wrong when running server.", err)
-	}
+	handler := otelhttp.NewHandler(mux, "/")
+	return handler
 }
