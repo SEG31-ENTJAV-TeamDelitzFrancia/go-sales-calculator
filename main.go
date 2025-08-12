@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"embed"
 	"errors"
+	"fmt"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -14,8 +17,15 @@ import (
 )
 
 var (
-	filepath       = "./html"
-	assetsFilepath = "./assets"
+	SRV_PORT = "7727"
+
+	//go:embed all:assets
+	assetsDir   embed.FS
+	assetsFS, _ = fs.Sub(assetsDir, "assets")
+
+	//go:embed all:html
+	htmlDir   embed.FS
+	htmlFS, _ = fs.Sub(htmlDir, "html")
 )
 
 var (
@@ -53,7 +63,7 @@ func run() (err error) {
 
 	// setup server
 	srv := &http.Server{
-		Addr:         ":7727",
+		Addr:         fmt.Sprintf(":%s", SRV_PORT),
 		BaseContext:  func(_ net.Listener) context.Context { return ctx },
 		ReadTimeout:  time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -61,6 +71,7 @@ func run() (err error) {
 	}
 	srvErr := make(chan error, 1)
 	go func() {
+		log.Printf("WebApp now starting at http://127.0.0.1:%s\n", SRV_PORT)
 		srvErr <- srv.ListenAndServe()
 	}()
 
@@ -90,7 +101,8 @@ func newHttpHandler() http.Handler {
 	}
 
 	// assets content (e.g. assets)
-	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(assetsFilepath))))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServerFS(assetsFS)))
+	// mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(assetsFilepath))))
 
 	// views endpoints
 	otelHandleFunc("/", RootHandler)

@@ -38,7 +38,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	// create view
-	t, err := template.New("index.html").ParseFiles(filepath + "/index.html")
+	t, err := template.New("index.html").ParseFS(htmlFS, "index.html")
 	if err != nil {
 		logger.ErrorContext(ctx, err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func CalculatePartialHandler(w http.ResponseWriter, r *http.Request) {
 	calculatedCtr.Add(ctx, 1, metric.WithAttributes(employeeAttr))
 
 	// create partial
-	t, err := template.New("display-payroll.html").Funcs(funcMap).ParseFiles(filepath + "/partials/display-payroll.html")
+	t, err := template.New("display-payroll.html").Funcs(funcMap).ParseFS(htmlFS, "partials/display-payroll.html")
 	if err != nil {
 		logger.ErrorContext(ctx, err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
